@@ -47,20 +47,20 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UTextRenderComponent* rightLog;
 
+	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
+	class UMoveComponent* moveComp;
+
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	class UInputMappingContext* vrMapping;
 
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
-	class UInputAction* rightTriggerTouch;
+	TArray<class UInputAction*> vrInputs;
 
-	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
-	class UInputAction* rightTriggerPress;
-
-	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
-	class UInputAction* rightTriggerValue;
 
 private:
 	void RightTriggerTouch(const FInputActionValue& val);
 	void RightTriggerPress(const FInputActionValue& val);
 	void RightTriggerValue(const FInputActionValue& val);
+	void Move(const FInputActionValue& val);
+	void Rotate(const FInputActionValue& val);
 };

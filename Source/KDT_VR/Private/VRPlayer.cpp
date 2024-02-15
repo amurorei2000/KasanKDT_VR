@@ -9,6 +9,7 @@
 #include "Components/TextRenderComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MoveComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -54,6 +55,14 @@ AVRPlayer::AVRPlayer()
 	rightLog->SetVerticalAlignment(EVRTA_TextCenter);
 	rightLog->SetWorldSize(20);
 	rightLog->SetTextRenderColor(FColor::Yellow);
+
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+
+	// 커스텀 액터 컴포넌트
+	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
+
 }
 
 void AVRPlayer::BeginPlay()
@@ -89,13 +98,25 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (enhancedInputComponent != nullptr)
 	{
+#pragma region Input Test
 		// 입력 컴포넌트에 RightTriggerTouch() 함수를 연결한다.(닿았을 때, 뗏을 때)
-		enhancedInputComponent->BindAction(rightTriggerTouch, ETriggerEvent::Started, this, &AVRPlayer::RightTriggerTouch);
-		enhancedInputComponent->BindAction(rightTriggerTouch, ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerTouch);
-		enhancedInputComponent->BindAction(rightTriggerPress, ETriggerEvent::Started, this, &AVRPlayer::RightTriggerPress);
-		enhancedInputComponent->BindAction(rightTriggerPress, ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerPress);
-		enhancedInputComponent->BindAction(rightTriggerValue, ETriggerEvent::Triggered, this, &AVRPlayer::RightTriggerValue);
-		enhancedInputComponent->BindAction(rightTriggerValue, ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerValue);
+		//enhancedInputComponent->BindAction(vrInputs[0], ETriggerEvent::Started, this, &AVRPlayer::RightTriggerTouch);
+		//enhancedInputComponent->BindAction(vrInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerTouch);
+		//enhancedInputComponent->BindAction(vrInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RightTriggerPress);
+		//enhancedInputComponent->BindAction(vrInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerPress);
+		//enhancedInputComponent->BindAction(vrInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::RightTriggerValue);
+		//enhancedInputComponent->BindAction(vrInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::RightTriggerValue);
+		//enhancedInputComponent->BindAction(leftThumbstickAxis, ETriggerEvent::Triggered, this, &AVRPlayer::Move);
+		//enhancedInputComponent->BindAction(leftThumbstickAxis, ETriggerEvent::Completed, this, &AVRPlayer::Move);
+		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Triggered, this, &AVRPlayer::Rotate);
+		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::Rotate);
+#pragma endregion
+
+		if (moveComp != nullptr)
+		{
+			moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
+		}
+
 	}
 }
 
@@ -110,11 +131,34 @@ void AVRPlayer::RightTriggerPress(const FInputActionValue& val)
 {
 	FString result = val.Get<bool>() == true ? FString("True") : FString("False");
 	//rightLog->SetText(FText::FromString(FString::Printf(TEXT("Right Index Pressed: %s"), *result)));
+	
 }
 
 void AVRPlayer::RightTriggerValue(const FInputActionValue& val)
 {
 	float pressed = val.Get<float>();
 	rightLog->SetText(FText::FromString(FString::Printf(TEXT("Right Index Pressed: %.3f"), pressed)));
+}
+
+void AVRPlayer::Move(const FInputActionValue& val)
+{
+	FVector2D dir = val.Get<FVector2D>();
+	// 입력 값 확인용 출력 로그
+	leftLog->SetText(FText::FromString(FString::Printf(TEXT("X: %.2f\nY: %.2f"), dir.X, dir.Y)));
+
+	// 현재 바라보고 있는 방향으로 이동한다.
+	FVector originVec = FVector(dir.Y, dir.X, 0);
+	FVector newVec = GetTransform().TransformVector(originVec);
+
+	AddMovementInput(newVec);
+}
+
+void AVRPlayer::Rotate(const FInputActionValue& val)
+{
+	FVector2D dir = val.Get<FVector2D>();
+	rightLog->SetText(FText::FromString(FString::Printf(TEXT("X: %.2f\nY: %.2f"), dir.X, dir.Y)));
+
+	// 입력받은 방향으로 회전한다.
+	AddControllerYawInput(dir.X);
 }
 
