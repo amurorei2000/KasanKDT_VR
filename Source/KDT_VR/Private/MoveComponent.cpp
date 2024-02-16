@@ -6,11 +6,18 @@
 #include "InputAction.h"
 #include "VRPlayer.h"
 #include "MotionControllerComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "NiagaraDataInterfaceArrayFunctionLibrary.h"
+#include "TeleportRingActor.h"
+#include "NiagaraComponent.h"
+#include "BallActor.h"
+#include "Components/SphereComponent.h"
 
 
 UMoveComponent::UMoveComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
 
 }
 
@@ -19,7 +26,17 @@ void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	player = GetOwner<AVRPlayer>();
 
+	// 텔레포트 타겟 지점에 표시할 링 이펙트를 생성 후 비활성화한다.
+	ringInstance = GetWorld()->SpawnActor<ATeleportRingActor>(ringActor, player->GetActorLocation(), player->GetActorRotation());
+	ringInstance->ringFX->SetVisibility(false);
+
+	// 물리 비교용 공 액터 생성하기
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ballInstance = GetWorld()->SpawnActor<ABallActor>(ballActor, player->rightMotion->GetComponentLocation(), FRotator::ZeroRotator, params);
 }
 
 
@@ -27,9 +44,9 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bIsShowLine)
+	if (bIsShowLine && player != nullptr)
 	{
-		UMotionControllerComponent* rightMotionCon = GetOwner<AVRPlayer>()->rightMotion;
+		UMotionControllerComponent* rightMotionCon = player->rightMotion;
 		if (rightMotionCon != nullptr)
 		{
 			FVector handLocation = rightMotionCon->GetComponentLocation();
@@ -37,12 +54,34 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
 		}
 	}
+
+	if (!bShootBall)
+	{
+		ballInstance->SetActorLocation(player->rightMotion->GetComponentLocation());
+	}
 }
 
 void UMoveComponent::SetupPlayerInputComponent(UEnhancedInputComponent* PlayerInputComponent, TArray<UInputAction*> inputs)
 {
+	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Started, this, &UMoveComponent::ShootBall);
 	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Triggered, this, &UMoveComponent::ShowTrajectory);
 	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Completed, this, &UMoveComponent::TeleportToTarget);
+}
+
+void UMoveComponent::ShootBall()
+{
+	if (ballInstance != nullptr)
+	{
+		UMotionControllerComponent* rightMotionCon = player->rightMotion;
+		if (rightMotionCon != nullptr)
+		{
+			FVector handLocation = rightMotionCon->GetComponentLocation();
+			FVector direction = rightMotionCon->GetForwardVector() + rightMotionCon->GetUpVector() * -1;
+			ballInstance->sphereComp->SetEnableGravity(true);
+			ballInstance->sphereComp->AddImpulse(direction.GetSafeNormal() * power);
+			bShootBall = true;
+		}
+	}
 }
 
 void UMoveComponent::ShowTrajectory()
@@ -54,20 +93,43 @@ void UMoveComponent::ShowTrajectory()
 void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPower, float time, int32 term)
 {
 	float interval = time / (float)term;
-	TArray<FVector> throwPoints;
+	throwPoints.Empty();
+	throwPoints.Add(startLoc);
 
 	for (int32 i = 0; i < term; i++)
 	{
-		// p = p0 + vt - 0.5 * g * t * t
+		// p = p0 + vt - 0.5 * g * m * m * t * t
 		float t = interval * i;
-		float gravity = 0.5f * GetWorld()->GetDefaultGravityZ() * t * t;
+		float mass = ballInstance->sphereComp->GetMass();
+		float gravity = 0.5f * GetWorld()->GetDefaultGravityZ() * mass * mass * t * t;
 		FVector curLocation = startLoc + dir * throwPower * t + FVector(0, 0, gravity);
+
+		// 각 구간마다의 충돌 여부를 체크
+		FHitResult hitInfo;
+		FVector startVec = throwPoints[throwPoints.Num() - 1];
+
+		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startVec, curLocation, ECC_Visibility))
+		{
+			throwPoints.Add(hitInfo.ImpactPoint);
+			break;
+		}
+
 		throwPoints.Add(curLocation);
 	}
 
-	for (int32 i = 0; i < throwPoints.Num() - 1; i++)
+	if (throwPoints.Num() > 1)
 	{
-		DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Red, false, 0, 0, 2);
+		for (int32 i = 0; i < throwPoints.Num() - 1; i++)
+		{
+			// DebugLine을 이용해서 그리기
+			//DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Red, false, 0, 0, 2);
+
+			// NiagaraSystem을 이용해서 그리기
+			UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
+
+			ringInstance->ringFX->SetVisibility(true);
+			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
+		}
 	}
 }
 
@@ -75,7 +137,31 @@ void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPo
 void UMoveComponent::TeleportToTarget()
 {
 	bIsShowLine = false;
+	// 라인 이펙트의 구간 벡터 값을 0으로 초기화한다.
+	TArray<FVector> initVector;
+	initVector.SetNum(2);
 
+	UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), initVector);
+
+
+	float fadeTime = 1.0f;
+
+	if (player != nullptr && throwPoints.Num() > 0)
+	{
+		// 0.5초동안 페이드 인 효과를 주고 이동한다.
+		//player->GetController<APlayerController>()->ClientSetCameraFade(true, FColor::White, FVector2D(0, 1.0f), fadeTime);
+		player->GetController<APlayerController>()->PlayerCameraManager->StartCameraFade(0, 1, fadeTime, FLinearColor::White);
+
+		//FColor myColor1 = FColor(255, 255, 255, 255);
+		//FLinearColor myColor2 = FColor(1, 1, 1, 1);
+
+		FTimerHandle teleportTimer;
+		GetWorld()->GetTimerManager().SetTimer(teleportTimer, FTimerDelegate::CreateLambda([&]() {
+			player->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
+			ringInstance->ringFX->SetVisibility(false);
+			}), fadeTime, false);
+
+	}
 }
 
 

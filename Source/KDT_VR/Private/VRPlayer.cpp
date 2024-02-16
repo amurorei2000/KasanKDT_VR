@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "MoveComponent.h"
+#include "NiagaraComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -55,6 +56,9 @@ AVRPlayer::AVRPlayer()
 	rightLog->SetVerticalAlignment(EVRTA_TextCenter);
 	rightLog->SetWorldSize(20);
 	rightLog->SetTextRenderColor(FColor::Yellow);
+
+	lineFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Line Effect"));
+	lineFX->SetupAttachment(rightMotion);
 
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = false;

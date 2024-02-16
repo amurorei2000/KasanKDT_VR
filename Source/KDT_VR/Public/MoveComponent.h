@@ -34,10 +34,21 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	int32 throwTerm = 50;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	TSubclassOf<class ATeleportRingActor> ringActor;
+
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	TSubclassOf<class ABallActor> ballActor;
+	
 private:
 	bool bIsShowLine = false;
+	class AVRPlayer* player;
+	TArray<FVector> throwPoints;
+	class ATeleportRingActor* ringInstance;
+	class ABallActor* ballInstance;
+	bool bShootBall = false;
 
-
+	void ShootBall();
 	void ShowTrajectory();
 	void DrawTrajectory(FVector startLoc, FVector dir, float throwPower, float time, int32 term);
 	void TeleportToTarget();

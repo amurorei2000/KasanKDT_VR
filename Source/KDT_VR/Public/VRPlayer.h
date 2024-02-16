@@ -50,6 +50,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UMoveComponent* moveComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
+	class UNiagaraComponent* lineFX;
+
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	class UInputMappingContext* vrMapping;
 
