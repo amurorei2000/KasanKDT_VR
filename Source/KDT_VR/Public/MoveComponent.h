@@ -47,9 +47,13 @@ private:
 	class ATeleportRingActor* ringInstance;
 	class ABallActor* ballInstance;
 	bool bShootBall = false;
+	float bezierTimeValue = 0;
+	TArray<FVector> bPoints;
+	bool bElapsedTime = true;
 
 	void ShootBall();
 	void ShowTrajectory();
 	void DrawTrajectory(FVector startLoc, FVector dir, float throwPower, float time, int32 term);
+	void DrawBezierCurve(FVector p0, FVector p1, FVector p2, float term);
 	void TeleportToTarget();
 };

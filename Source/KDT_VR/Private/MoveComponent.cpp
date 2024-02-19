@@ -33,10 +33,10 @@ void UMoveComponent::BeginPlay()
 	ringInstance->ringFX->SetVisibility(false);
 
 	// 물리 비교용 공 액터 생성하기
-	FActorSpawnParameters params;
+	/*FActorSpawnParameters params;
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	ballInstance = GetWorld()->SpawnActor<ABallActor>(ballActor, player->rightMotion->GetComponentLocation(), FRotator::ZeroRotator, params);
+	ballInstance = GetWorld()->SpawnActor<ABallActor>(ballActor, player->rightMotion->GetComponentLocation(), FRotator::ZeroRotator, params);*/
 }
 
 
@@ -51,19 +51,31 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		{
 			FVector handLocation = rightMotionCon->GetComponentLocation();
 			FVector direction = rightMotionCon->GetForwardVector() + rightMotionCon->GetUpVector() * -1;
-			DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
+
+			// 물리 예측선 방식으로 그린다.
+			//DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
+
+			// 베지어 곡선 방식으로 그린다.
+			FVector handUpVector = handLocation + rightMotionCon->GetForwardVector() * 100;
+			FVector handRightVector = handUpVector + rightMotionCon->GetRightVector() * 100;
+
+			/*bezierTimeValue += DeltaTime * 0.5f;
+			bezierTimeValue = FMath::Min(bezierTimeValue, 1.0f);*/
+
+			DrawBezierCurve(handLocation, handUpVector, handRightVector, 50);
 		}
 	}
 
-	if (!bShootBall)
+	// 공을 발사하기 전에 오른 손을 쫓아다니도록 처리하기
+	/*if (!bShootBall)
 	{
 		ballInstance->SetActorLocation(player->rightMotion->GetComponentLocation());
-	}
+	}*/
 }
 
 void UMoveComponent::SetupPlayerInputComponent(UEnhancedInputComponent* PlayerInputComponent, TArray<UInputAction*> inputs)
 {
-	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Started, this, &UMoveComponent::ShootBall);
+	//PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Started, this, &UMoveComponent::ShootBall);
 	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Triggered, this, &UMoveComponent::ShowTrajectory);
 	PlayerInputComponent->BindAction(inputs[0], ETriggerEvent::Completed, this, &UMoveComponent::TeleportToTarget);
 }
@@ -133,10 +145,55 @@ void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPo
 	}
 }
 
+
+// 곡선을 그리고 싶다.
+// 공식이 필요하다. -> 베지어 곡선 공식
+// p0 -> p1 까지 선을 그린다.
+// p1 -> p2까지 선을 그린다.
+// p0 ~ p1까지의 비율에 따른 점의 위치(m1)를 구한다. -> Lerp()
+// p1 ~ p2까지의 비율에 따른 점의 위치(m2)를 구한다. -> Lerp()
+// m1 ~ m2까지 선을 그린다.
+// m1 ~ m2까지의 비율에 따른 점의 위치(b0)를 구한다.
+// b0의 위치 값들을 배열에 저장한다.
+
+void UMoveComponent::DrawBezierCurve(FVector p0, FVector p1, FVector p2, float term)
+{
+	for (int32 i = 0; i < term; i++)
+	{
+		float interval = (float)i / term;
+		FVector m0 = FMath::Lerp(p0, p1, interval);
+		//DrawDebugLine(GetWorld(), p0, m0, FColor::Red, false, 0, 0, 1);
+
+		FVector m1 = FMath::Lerp(p1, p2, interval);
+		//DrawDebugLine(GetWorld(), p1, m1, FColor::Red, false, 0, 0, 1);
+
+		//DrawDebugLine(GetWorld(), m0, m1, FColor::Green, false, 0, 0, 1);
+		FVector b0 = FMath::Lerp(m0, m1, interval);
+		//if(m1 != b0)
+		//if (bElapsedTime)
+		//{
+		//	bPoints.Add(b0);
+		//	if (term >= 1)
+		//	{
+		//		bElapsedTime = false;
+		//	}
+		//}
+		bPoints.Add(b0);
+	}
+
+	for (int32 i = 0; i < bPoints.Num() - 1; i++)
+	{
+		DrawDebugLine(GetWorld(), bPoints[i], bPoints[i + 1], FColor::Black, false, 0, 0, 1);
+	}
+}
+
 // 지정된 곳으로 텔레포트하는 함수
 void UMoveComponent::TeleportToTarget()
 {
 	bIsShowLine = false;
+	bezierTimeValue = 0;
+	bPoints.Empty();
+
 	// 라인 이펙트의 구간 벡터 값을 0으로 초기화한다.
 	TArray<FVector> initVector;
 	initVector.SetNum(2);
