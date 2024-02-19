@@ -12,6 +12,7 @@
 #include "NiagaraComponent.h"
 #include "BallActor.h"
 #include "Components/SphereComponent.h"
+#include "MyVRFunctionLibrary.h"
 
 
 UMoveComponent::UMoveComponent()
@@ -56,13 +57,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			//DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
 
 			// 베지어 곡선 방식으로 그린다.
-			FVector handUpVector = handLocation + rightMotionCon->GetForwardVector() * 100;
-			FVector handRightVector = handUpVector + rightMotionCon->GetRightVector() * 100;
-
-			/*bezierTimeValue += DeltaTime * 0.5f;
-			bezierTimeValue = FMath::Min(bezierTimeValue, 1.0f);*/
-
-			DrawBezierCurve(handLocation, handUpVector, handRightVector, 50);
+			DrawBezierLine(rightMotionCon);
 		}
 	}
 
@@ -145,46 +140,65 @@ void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPo
 	}
 }
 
-
-// 곡선을 그리고 싶다.
-// 공식이 필요하다. -> 베지어 곡선 공식
-// p0 -> p1 까지 선을 그린다.
-// p1 -> p2까지 선을 그린다.
-// p0 ~ p1까지의 비율에 따른 점의 위치(m1)를 구한다. -> Lerp()
-// p1 ~ p2까지의 비율에 따른 점의 위치(m2)를 구한다. -> Lerp()
-// m1 ~ m2까지 선을 그린다.
-// m1 ~ m2까지의 비율에 따른 점의 위치(b0)를 구한다.
-// b0의 위치 값들을 배열에 저장한다.
-
-void UMoveComponent::DrawBezierCurve(FVector p0, FVector p1, FVector p2, float term)
+void UMoveComponent::DrawBezierLine(UMotionControllerComponent* rightMotionComp)
 {
-	for (int32 i = 0; i < term; i++)
+	// 1. 아래 방향으로 45도 각도로 방향 벡터(searchDirection)를 만든다.
+	FVector searchDirection = (rightMotionComp->GetForwardVector() + rightMotionComp->GetUpVector() * 3) * -1;
+	FVector handLocation = rightMotionComp->GetComponentLocation();
+
+	// 2. searchDirection 벡터의 방향으로 라인 트레이스를 발사한다.
+	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(player);
+
+	bool bIsSearched = GetWorld()->LineTraceSingleByChannel(hitInfo, handLocation, handLocation + searchDirection * 2000.0f, ECC_Visibility, param);
+
+	if (!bIsSearched)
 	{
-		float interval = (float)i / term;
-		FVector m0 = FMath::Lerp(p0, p1, interval);
-		//DrawDebugLine(GetWorld(), p0, m0, FColor::Red, false, 0, 0, 1);
-
-		FVector m1 = FMath::Lerp(p1, p2, interval);
-		//DrawDebugLine(GetWorld(), p1, m1, FColor::Red, false, 0, 0, 1);
-
-		//DrawDebugLine(GetWorld(), m0, m1, FColor::Green, false, 0, 0, 1);
-		FVector b0 = FMath::Lerp(m0, m1, interval);
-		//if(m1 != b0)
-		//if (bElapsedTime)
-		//{
-		//	bPoints.Add(b0);
-		//	if (term >= 1)
-		//	{
-		//		bElapsedTime = false;
-		//	}
-		//}
-		bPoints.Add(b0);
+		return;
 	}
 
-	for (int32 i = 0; i < bPoints.Num() - 1; i++)
+	// 3. 부딪힌 지점의 벡터를 저장(DestinationVec)한다.
+	FVector destinationVec = hitInfo.ImpactPoint;
+
+	// 4. DestinationVec.Z 과 오른손 콘트롤러의 Z 값의 거리의 2배만큼 높인 벡터를 저장(MiddleVec)한다.
+	float distance = FMath::Abs(handLocation.Z - destinationVec.Z);
+	FVector middleVec = destinationVec + FVector(0, 0, distance * 2);
+
+	// 5. UBlueprintFunctionLibrary로 만든 DrawBezierCurve() 함수를 사용하여 곡선의 각 구간 위치 값을 배열로 받는다.
+	TArray<FVector> points = UMyVRFunctionLibrary::DrawBezierCurve(handLocation, middleVec, destinationVec, 50);
+
+	// 6. 곡선의 각 구간별 충돌 처리 검사를 한다.
+	throwPoints.Empty();
+	throwPoints.Add(points[0]);
+
+	for (int32 i = 0; i < points.Num() - 1; i++)
 	{
-		DrawDebugLine(GetWorld(), bPoints[i], bPoints[i + 1], FColor::Black, false, 0, 0, 1);
+		FHitResult lineCollide;
+		if (GetWorld()->LineTraceSingleByChannel(lineCollide, points[i], points[i + 1], ECC_Visibility, param))
+		{
+			throwPoints.Add(lineCollide.ImpactPoint);
+			break;
+		}
+
+		throwPoints.Add(points[i + 1]);
 	}
+
+	// 7. calcPoints 배열의 각 구간을 선으로 잇는다.
+	if (throwPoints.Num() > 1)
+	{
+		for (int32 i = 0; i < throwPoints.Num() - 1; i++)
+		{
+			//DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Black, false, 0, 0, 1);
+
+			// NiagaraSystem을 이용해서 그리기
+			UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
+
+			ringInstance->ringFX->SetVisibility(true);
+			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
+		}
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Points Array whole count: %d"), points.Num() - 1);
 }
 
 // 지정된 곳으로 텔레포트하는 함수
@@ -192,7 +206,6 @@ void UMoveComponent::TeleportToTarget()
 {
 	bIsShowLine = false;
 	bezierTimeValue = 0;
-	bPoints.Empty();
 
 	// 라인 이펙트의 구간 벡터 값을 0으로 초기화한다.
 	TArray<FVector> initVector;
