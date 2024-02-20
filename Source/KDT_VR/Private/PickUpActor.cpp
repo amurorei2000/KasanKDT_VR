@@ -4,6 +4,7 @@
 #include "PickUpActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 APickUpActor::APickUpActor()
@@ -38,11 +39,20 @@ void APickUpActor::Tick(float DeltaTime)
 
 }
 
-void APickUpActor::OnGrabbed(UStaticMeshComponent* handMeshComp)
+// 자기 자신을 handMeshComp에 부착시키는 함수
+void APickUpActor::OnGrabbed(USkeletalMeshComponent* handMeshComp)
 {
 	boxComp->SetSimulatePhysics(false);
+	
+	// 1. 잡을 당시의 간격 위치 값(월드 좌표 기준)을 그대로 유지하면서 붙이도록 설정한다.
 	FAttachmentTransformRules attachRules = FAttachmentTransformRules::KeepWorldTransform;
-
 	AttachToComponent(handMeshComp, attachRules);
+
+	// 2. 손 메시의 소켓 위치에 맞춰서 자신을 부착한다.
+	/*FAttachmentTransformRules attachRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+
+	AttachToComponent(handMeshComp, attachRules, FName("GrabPoint"));
+	SetActorRelativeLocation(offsetLocation);
+	SetActorRelativeRotation(offsetRotation);*/
 }
 

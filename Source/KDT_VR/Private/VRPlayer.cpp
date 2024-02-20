@@ -12,6 +12,7 @@
 #include "MoveComponent.h"
 #include "NiagaraComponent.h"
 #include "GrabComponent.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -85,8 +86,10 @@ void AVRPlayer::BeginPlay()
 		{
 			subsys->AddMappingContext(vrMapping, 0);
 		}
-
 	}
+
+	// HMD 장비의 기준점 설정
+	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Type::Eye);
 
 }
 
