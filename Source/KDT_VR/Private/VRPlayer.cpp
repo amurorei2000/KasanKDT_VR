@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "MoveComponent.h"
 #include "NiagaraComponent.h"
+#include "GrabComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -66,6 +67,7 @@ AVRPlayer::AVRPlayer()
 
 	// Ä¿½ºÅÒ ¾×ÅÍ ÄÄÆ÷³ÍÆ®
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
+	grabComp = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
 
 }
 
@@ -120,6 +122,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		{
 			moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		}
+
+		grabComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 
 	}
 }

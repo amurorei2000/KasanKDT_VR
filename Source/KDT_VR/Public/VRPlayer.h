@@ -48,10 +48,13 @@ public:
 	class UTextRenderComponent* rightLog;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
+	class UNiagaraComponent* lineFX;
+
+	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UMoveComponent* moveComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
-	class UNiagaraComponent* lineFX;
+	class UGrabComponent* grabComp;
 
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	class UInputMappingContext* vrMapping;
