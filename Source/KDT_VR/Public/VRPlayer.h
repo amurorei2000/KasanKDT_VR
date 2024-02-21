@@ -63,6 +63,8 @@ public:
 	TArray<class UInputAction*> vrInputs;
 
 
+	class APlayerController* pc;
+
 private:
 	void RightTriggerTouch(const FInputActionValue& val);
 	void RightTriggerPress(const FInputActionValue& val);

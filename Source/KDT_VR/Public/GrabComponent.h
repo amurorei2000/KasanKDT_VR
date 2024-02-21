@@ -23,8 +23,17 @@ public:
 
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent, TArray<class UInputAction*> inputs);
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	float throwPower = 500;
+
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	float throwThreshold = 0.3f;
+
 private:
 	class AVRPlayer* player;
+	class APickUpActor* currentObject;
+	FVector currentLocation_rightCon;
+	FVector previousLocation_rightCon;
 
 	void GrabObject();
 	void ReleaseObject();

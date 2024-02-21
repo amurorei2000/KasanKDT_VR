@@ -32,5 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	FRotator offsetRotation;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	float throwPower = 500;
+
 	void OnGrabbed(class USkeletalMeshComponent* handMeshComp);
+	void OnReleased(FVector deltaDir, float throwThreshold);
 };

@@ -29,6 +29,12 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// 오른손 콘트롤러의 위치 변화량을 저장한다.
+	previousLocation_rightCon = currentLocation_rightCon;
+	currentLocation_rightCon = player->rightHand->GetComponentLocation();
+
+	//FVector deltaDirection = currentLocation_rightCon - previousLocation_rightCon;
+	//UE_LOG(LogTemp, Warning, TEXT("delta length: %f"), deltaDirection.Length());
 }
 
 void UGrabComponent::SetupPlayerInputComponent(UEnhancedInputComponent* PlayerInputComponent, TArray<class UInputAction*> inputs)
@@ -42,54 +48,60 @@ void UGrabComponent::GrabObject()
 	// 범위형 충돌 체크(Object Type: PickUp)
 #pragma region SweepTrace Type
 	// 1. SweepTrace를 이용한 방식
-	/*FHitResult hitInfo;
-	FVector originLoc = player->rightHand->GetComponentLocation();
-	FCollisionObjectQueryParams objectParams;
-	objectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel2);
-
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(player);
-
-	bool bChecked = GetWorld()->SweepSingleByObjectType(hitInfo, originLoc, originLoc, FQuat::Identity, objectParams, FCollisionShape::MakeSphere(30), params);
-
-	if (bChecked)
+	if (currentObject == nullptr)
 	{
-		APickUpActor* pickedObject = Cast<APickUpActor>(hitInfo.GetActor());
-		UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *hitInfo.GetActor()->GetActorNameOrLabel());
+		FHitResult hitInfo;
+		FVector originLoc = player->rightHand->GetComponentLocation();
+		FCollisionObjectQueryParams objectParams;
+		objectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel2);
 
-		if (pickedObject != nullptr)
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(player);
+
+		bool bChecked = GetWorld()->SweepSingleByObjectType(hitInfo, originLoc, originLoc, FQuat::Identity, objectParams, FCollisionShape::MakeSphere(30), params);
+
+		if (bChecked)
 		{
-			pickedObject->OnGrabbed(player->rightHand);
+			currentObject = Cast<APickUpActor>(hitInfo.GetActor());
+			//UE_LOG(LogTemp, Warning, TEXT("%s(%d) - Hit Actor: %s"), *FString(__FUNCTION__), __LINE__, *hitInfo.GetActor()->GetActorNameOrLabel());
+
+			if (currentObject != nullptr)
+			{
+				currentObject->OnGrabbed(player->rightHand);
+
+				// 오른손 컨트롤러에 진동 효과를 준다.
+
+			}
 		}
-	}*/
+	}
 #pragma endregion
 
 #pragma region Overlap Type
 	// 2. overlap을 이용한 방식
-	TArray<FOverlapResult> hitInfos;
-	FCollisionObjectQueryParams objectParams;
-	objectParams.AddObjectTypesToQuery(ECC_GameTraceChannel2);
+	//TArray<FOverlapResult> hitInfos;
+	//FCollisionObjectQueryParams objectParams;
+	//objectParams.AddObjectTypesToQuery(ECC_GameTraceChannel2);
 
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(player);
+	//FCollisionQueryParams params;
+	//params.AddIgnoredActor(player);
 
-	bool bChecked = GetWorld()->OverlapMultiByObjectType(hitInfos, player->rightHand->GetComponentLocation(), FQuat::Identity, objectParams, FCollisionShape::MakeSphere(20), params);
-	// 충돌 체크 범위 시각화
-	DrawDebugSphere(GetWorld(), player->rightHand->GetComponentLocation(), 20, 30, FColor::Green, false, 2.0f, 0, 1);
+	//bool bChecked = GetWorld()->OverlapMultiByObjectType(hitInfos, player->rightHand->GetComponentLocation(), FQuat::Identity, objectParams, FCollisionShape::MakeSphere(20), params);
+	//// 충돌 체크 범위 시각화
+	//DrawDebugSphere(GetWorld(), player->rightHand->GetComponentLocation(), 20, 30, FColor::Green, false, 2.0f, 0, 1);
 
-	if (bChecked)
-	{
-		// 범위 내의 감지된 모든 PickUpActor 오브젝트들을 다 잡기
-		for (const FOverlapResult& hitInfo : hitInfos)
-		{
-			APickUpActor* pickedObj = Cast<APickUpActor>(hitInfo.GetActor());
+	//if (bChecked)
+	//{
+	//	// 범위 내의 감지된 모든 PickUpActor 오브젝트들을 다 잡기
+	//	for (const FOverlapResult& hitInfo : hitInfos)
+	//	{
+	//		APickUpActor* pickedObj = Cast<APickUpActor>(hitInfo.GetActor());
 
-			if (pickedObj != nullptr)
-			{
-				pickedObj->OnGrabbed(player->rightHand);
-			}
-		}
-	}
+	//		if (pickedObj != nullptr)
+	//		{
+	//			pickedObj->OnGrabbed(player->rightHand);
+	//		}
+	//	}
+	//}
 #pragma endregion
 
 }
@@ -97,6 +109,14 @@ void UGrabComponent::GrabObject()
 // 물체를 놓는 함수
 void UGrabComponent::ReleaseObject()
 {
-	// 
+	// 현재 쥐고 있는 물체가 있는지 확인한다.
+	if (currentObject != nullptr)
+	{
+		// 오른손 콘트롤러의 위치 변화량을 계산한다.
+		FVector deltaDirection = currentLocation_rightCon - previousLocation_rightCon;
+
+		currentObject->OnReleased(deltaDirection, throwThreshold);
+		currentObject = nullptr;
+	}
 }
 

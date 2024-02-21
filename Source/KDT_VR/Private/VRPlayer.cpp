@@ -77,7 +77,7 @@ void AVRPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	// Input Mapping Context 파일을 입력 서브 시스템에 등록하는 절차를 실행한다.
-	APlayerController* pc = GetController<APlayerController>();
+	pc = GetController<APlayerController>();
 	if (pc != nullptr)
 	{
 		UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
