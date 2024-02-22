@@ -119,6 +119,10 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		//enhancedInputComponent->BindAction(leftThumbstickAxis, ETriggerEvent::Completed, this, &AVRPlayer::Move);
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Triggered, this, &AVRPlayer::Rotate);
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::Rotate);
+		
+		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Triggered, this, &AVRPlayer::RightHandTriggerValue);
+		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::RightHandTriggerValue);
+
 #pragma endregion
 
 		if (moveComp != nullptr)
@@ -171,5 +175,10 @@ void AVRPlayer::Rotate(const FInputActionValue& val)
 
 	// 입력받은 방향으로 회전한다.
 	AddControllerYawInput(dir.X);
+}
+
+void AVRPlayer::RightHandTriggerValue(const FInputActionValue& val)
+{
+	rightHandValue = val.Get<float>();
 }
 

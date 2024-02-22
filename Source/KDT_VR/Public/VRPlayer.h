@@ -62,8 +62,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	TArray<class UInputAction*> vrInputs;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
+	TArray<class UInputAction*> animInputs;
 
 	class APlayerController* pc;
+	float rightHandValue = 0;
 
 private:
 	void RightTriggerTouch(const FInputActionValue& val);
@@ -71,4 +74,5 @@ private:
 	void RightTriggerValue(const FInputActionValue& val);
 	void Move(const FInputActionValue& val);
 	void Rotate(const FInputActionValue& val);
+	void RightHandTriggerValue(const FInputActionValue& val);
 };

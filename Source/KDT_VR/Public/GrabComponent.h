@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	float throwThreshold = 0.3f;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	class UHapticFeedbackEffect_Base* grabHaptic;
+
 private:
 	class AVRPlayer* player;
 	class APickUpActor* currentObject;

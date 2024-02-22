@@ -70,7 +70,7 @@ void UGrabComponent::GrabObject()
 				currentObject->OnGrabbed(player->rightHand);
 
 				// 오른손 컨트롤러에 진동 효과를 준다.
-
+				player->pc->PlayHapticEffect(grabHaptic, EControllerHand::Right);
 			}
 		}
 	}
