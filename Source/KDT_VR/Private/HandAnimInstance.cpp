@@ -19,6 +19,14 @@ void UHandAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (player != nullptr)
 	{
-		graspValue = player->rightHandValue;
+		graspValue = bMirrored ? player->currentLeftHandTrigger : player->currentRightHandTrigger;
+
+		targetIndexValue = bMirrored ? player->leftIndexTouch : player->rightIndexTouch;
+		currentIndexValue = FMath::Lerp(currentIndexValue, targetIndexValue, DeltaSeconds * 13);
+
+		IndexTriggerValue = bMirrored ? player->currentLeftIndexTrigger : player->currentRightIndexTrigger;
+		
+		targetThumbUpValue = bMirrored ? player->leftThumbUpTouch : player->rightThumbUpTouch;
+		currentThumbUpValue = FMath::Lerp(currentThumbUpValue, targetThumbUpValue, DeltaSeconds * 13);
 	}
 }

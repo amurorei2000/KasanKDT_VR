@@ -66,7 +66,18 @@ public:
 	TArray<class UInputAction*> animInputs;
 
 	class APlayerController* pc;
-	float rightHandValue = 0;
+
+	// ¿À¸¥¼Õ
+	float currentRightHandTrigger = 0;
+	float rightIndexTouch = 0;
+	float currentRightIndexTrigger = 0;
+	float rightThumbUpTouch = 0;
+
+	// ¿Þ¼Õ
+	float currentLeftHandTrigger = 0;
+	float leftIndexTouch = 0;
+	float currentLeftIndexTrigger = 0;
+	float leftThumbUpTouch = 0;
 
 private:
 	void RightTriggerTouch(const FInputActionValue& val);
@@ -75,4 +86,11 @@ private:
 	void Move(const FInputActionValue& val);
 	void Rotate(const FInputActionValue& val);
 	void RightHandTriggerValue(const FInputActionValue& val);
+	void RightIndexTouchValue(const FInputActionValue& val);
+	void RightIndexTriggerValue(const FInputActionValue& val);
+	void RightThumbUpTouchValue(const FInputActionValue& val);
+	void LeftHandTriggerValue(const FInputActionValue& val);
+	void LeftIndexTouchValue(const FInputActionValue& val);
+	void LeftIndexTriggerValue(const FInputActionValue& val);
+	void LeftThumbUpTouchValue(const FInputActionValue& val);
 };

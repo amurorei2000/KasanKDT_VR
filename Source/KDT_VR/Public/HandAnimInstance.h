@@ -19,6 +19,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="MySettings")
 	float graspValue = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	float currentIndexValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	float targetIndexValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	float IndexTriggerValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	float currentThumbUpValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	float targetThumbUpValue = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	bool bMirrored = false;
+
 private:
 	class AVRPlayer* player;
 

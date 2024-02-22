@@ -13,6 +13,7 @@
 #include "NiagaraComponent.h"
 #include "GrabComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "HandAnimInstance.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -91,6 +92,18 @@ void AVRPlayer::BeginPlay()
 	// HMD 장비의 기준점 설정
 	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(EHMDTrackingOrigin::Type::Eye);
 
+	// 왼손과 오른손의 애니메이션 미러링 값을 할당한다.
+	UHandAnimInstance* leftAnim = Cast<UHandAnimInstance>(leftHand->GetAnimInstance());
+	if (leftAnim != nullptr)
+	{
+		leftAnim->bMirrored = true;
+	}
+
+	UHandAnimInstance* rightAnim = Cast<UHandAnimInstance>(rightHand->GetAnimInstance());
+	if (rightAnim != nullptr)
+	{
+		rightAnim->bMirrored = false;
+	}
 }
 
 void AVRPlayer::Tick(float DeltaTime)
@@ -119,9 +132,20 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		//enhancedInputComponent->BindAction(leftThumbstickAxis, ETriggerEvent::Completed, this, &AVRPlayer::Move);
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Triggered, this, &AVRPlayer::Rotate);
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::Rotate);
-		
+
+		// 오른손 입력 값
 		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Triggered, this, &AVRPlayer::RightHandTriggerValue);
 		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::RightHandTriggerValue);
+		enhancedInputComponent->BindAction(animInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RightIndexTouchValue);
+		enhancedInputComponent->BindAction(animInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RightIndexTouchValue);
+		enhancedInputComponent->BindAction(animInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::RightIndexTriggerValue);
+		enhancedInputComponent->BindAction(animInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::RightIndexTriggerValue);
+		enhancedInputComponent->BindAction(animInputs[3], ETriggerEvent::Started, this, &AVRPlayer::RightThumbUpTouchValue);
+		enhancedInputComponent->BindAction(animInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::RightThumbUpTouchValue);
+
+		// 왼손 입력 값
+		enhancedInputComponent->BindAction(animInputs[4], ETriggerEvent::Triggered, this, &AVRPlayer::LeftHandTriggerValue);
+		enhancedInputComponent->BindAction(animInputs[4], ETriggerEvent::Completed, this, &AVRPlayer::LeftHandTriggerValue);
 
 #pragma endregion
 
@@ -146,7 +170,7 @@ void AVRPlayer::RightTriggerPress(const FInputActionValue& val)
 {
 	FString result = val.Get<bool>() == true ? FString("True") : FString("False");
 	//rightLog->SetText(FText::FromString(FString::Printf(TEXT("Right Index Pressed: %s"), *result)));
-	
+
 }
 
 void AVRPlayer::RightTriggerValue(const FInputActionValue& val)
@@ -179,6 +203,41 @@ void AVRPlayer::Rotate(const FInputActionValue& val)
 
 void AVRPlayer::RightHandTriggerValue(const FInputActionValue& val)
 {
-	rightHandValue = val.Get<float>();
+	currentRightHandTrigger = val.Get<float>();
+}
+
+void AVRPlayer::RightIndexTouchValue(const FInputActionValue& val)
+{
+	rightIndexTouch = val.Get<bool>() ? 0 : 1;
+}
+
+void AVRPlayer::RightIndexTriggerValue(const FInputActionValue& val)
+{
+	currentRightIndexTrigger = val.Get<float>();
+}
+
+void AVRPlayer::RightThumbUpTouchValue(const FInputActionValue& val)
+{
+	rightThumbUpTouch = val.Get<bool>() ? 0 : 1;
+}
+
+void AVRPlayer::LeftHandTriggerValue(const FInputActionValue& val)
+{
+	currentLeftHandTrigger = val.Get<float>();
+}
+
+void AVRPlayer::LeftIndexTouchValue(const FInputActionValue& val)
+{
+
+}
+
+void AVRPlayer::LeftIndexTriggerValue(const FInputActionValue& val)
+{
+
+}
+
+void AVRPlayer::LeftThumbUpTouchValue(const FInputActionValue& val)
+{
+
 }
 
