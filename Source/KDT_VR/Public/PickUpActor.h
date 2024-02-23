@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	float throwPower = 500;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	float torquePower = 100;
+
 	void OnGrabbed(class USkeletalMeshComponent* handMeshComp);
 	void OnReleased(FVector deltaDir, float throwThreshold, FVector deltaRot);
 };

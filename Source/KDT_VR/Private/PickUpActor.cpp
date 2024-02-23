@@ -72,7 +72,8 @@ void APickUpActor::OnReleased(FVector deltaDir, float throwThreshold, FVector de
 	if (deltaDir.Length() > throwThreshold)
 	{
 		boxComp->AddImpulse(deltaDir * throwPower);
-		boxComp->AddTorqueInRadians(deltaRot);
+		boxComp->AddTorqueInDegrees(deltaRot * torquePower);
 	}
+
 }
 
