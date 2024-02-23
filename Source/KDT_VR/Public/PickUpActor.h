@@ -36,5 +36,5 @@ public:
 	float throwPower = 500;
 
 	void OnGrabbed(class USkeletalMeshComponent* handMeshComp);
-	void OnReleased(FVector deltaDir, float throwThreshold);
+	void OnReleased(FVector deltaDir, float throwThreshold, FVector deltaRot);
 };

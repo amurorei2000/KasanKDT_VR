@@ -29,12 +29,16 @@ void UGrabComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// 오른손 콘트롤러의 위치 변화량을 저장한다.
+	// 오른손 콘트롤러의 위치 값을 저장한다.
 	previousLocation_rightCon = currentLocation_rightCon;
 	currentLocation_rightCon = player->rightHand->GetComponentLocation();
 
 	//FVector deltaDirection = currentLocation_rightCon - previousLocation_rightCon;
 	//UE_LOG(LogTemp, Warning, TEXT("delta length: %f"), deltaDirection.Length());
+
+	// 오른손 콘트롤러의 회전 값을 저장한다.
+	previousRotation_rightCon = currentRotation_rightCon;
+	currentRotation_rightCon = player->rightHand->GetComponentQuat();
 }
 
 void UGrabComponent::SetupPlayerInputComponent(UEnhancedInputComponent* PlayerInputComponent, TArray<class UInputAction*> inputs)
@@ -115,7 +119,11 @@ void UGrabComponent::ReleaseObject()
 		// 오른손 콘트롤러의 위치 변화량을 계산한다.
 		FVector deltaDirection = currentLocation_rightCon - previousLocation_rightCon;
 
-		currentObject->OnReleased(deltaDirection, throwThreshold);
+		// 오른손 콘트롤러의 회전 변화량을 계산한다.
+		FQuat deltaRotation = currentRotation_rightCon - previousRotation_rightCon;
+		//FQuat deltaRotation = currentRotation_rightCon * previousRotation_rightCon.Inverse();
+
+		currentObject->OnReleased(deltaDirection, throwThreshold, deltaRotation.GetRotationAxis());
 		currentObject = nullptr;
 	}
 }

@@ -56,7 +56,7 @@ void APickUpActor::OnGrabbed(USkeletalMeshComponent* handMeshComp)
 	SetActorRelativeRotation(offsetRotation);
 }
 
-void APickUpActor::OnReleased(FVector deltaDir, float throwThreshold)
+void APickUpActor::OnReleased(FVector deltaDir, float throwThreshold, FVector deltaRot)
 {
 	// 1. 특정 액터로부터 자신을 분리한다.
 	FDetachmentTransformRules detachRules = FDetachmentTransformRules::KeepWorldTransform;
@@ -72,6 +72,7 @@ void APickUpActor::OnReleased(FVector deltaDir, float throwThreshold)
 	if (deltaDir.Length() > throwThreshold)
 	{
 		boxComp->AddImpulse(deltaDir * throwPower);
+		boxComp->AddTorqueInRadians(deltaRot);
 	}
 }
 

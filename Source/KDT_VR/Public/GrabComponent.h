@@ -37,6 +37,8 @@ private:
 	class APickUpActor* currentObject;
 	FVector currentLocation_rightCon;
 	FVector previousLocation_rightCon;
+	FQuat currentRotation_rightCon;
+	FQuat previousRotation_rightCon;
 
 	void GrabObject();
 	void ReleaseObject();
