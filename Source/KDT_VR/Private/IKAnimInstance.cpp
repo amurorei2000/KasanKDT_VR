@@ -27,7 +27,13 @@ void UIKAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (leftHand != nullptr && rightHand != nullptr)
 	{
 		headLocation = player->cameraComp->GetComponentLocation();
+		headRotation = player->cameraComp->GetComponentRotation();
+
 		leftHandLocation = leftHand->GetComponentLocation();
+		leftHandRotation = leftHand->GetComponentRotation();
+
 		rightHandLocation = rightHand->GetComponentLocation();
+		rightHandRotation = rightHand->GetComponentRotation();
+		rightHandRotation = FRotator(rightHandRotation.Pitch * -1, rightHandRotation.Yaw, rightHandRotation.Roll);
 	}
 }

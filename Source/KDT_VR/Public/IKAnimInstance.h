@@ -31,4 +31,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
 	FVector rightHandLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	FRotator headRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	FRotator leftHandRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	FRotator rightHandRotation;
+
 };
