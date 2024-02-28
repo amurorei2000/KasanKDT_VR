@@ -29,6 +29,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
 	class UButton* btn_play;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
+	class UButton* btn_forward;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -41,5 +44,11 @@ private:
 	void MediaPlay();
 
 	UFUNCTION()
-	void MediaStartPlay();
+	void MediaStartPlay(FString OpenedUrl);
+
+	UFUNCTION()
+	void MediaForward();
+
+	UFUNCTION()
+	void MediaForwardToSeconds(float seconds);
 };

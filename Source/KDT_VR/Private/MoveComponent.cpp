@@ -54,10 +54,10 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 			FVector direction = rightMotionCon->GetForwardVector() + rightMotionCon->GetUpVector() * -1;
 
 			// 물리 예측선 방식으로 그린다.
-			//DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
+			DrawTrajectory(handLocation, direction.GetSafeNormal(), power, throwTime, throwTerm);
 
 			// 베지어 곡선 방식으로 그린다.
-			DrawBezierLine(rightMotionCon);
+			//DrawBezierLine(rightMotionCon);
 		}
 	}
 
@@ -129,13 +129,13 @@ void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPo
 		for (int32 i = 0; i < throwPoints.Num() - 1; i++)
 		{
 			// DebugLine을 이용해서 그리기
-			//DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Red, false, 0, 0, 2);
+			DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Red, false, 0, 0, 2);
 
 			// NiagaraSystem을 이용해서 그리기
-			UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
+			/*UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
 
 			ringInstance->ringFX->SetVisibility(true);
-			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
+			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);*/
 		}
 	}
 }

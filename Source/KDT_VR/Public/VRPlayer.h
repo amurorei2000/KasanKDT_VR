@@ -51,6 +51,10 @@ public:
 	class UNiagaraComponent* lineFX;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
+	class UWidgetInteractionComponent* widgetPointerRight;
+
+	// 액터 컴포넌트들
+	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UMoveComponent* moveComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")

@@ -14,6 +14,7 @@
 #include "GrabComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "HandAnimInstance.h"
+#include "Components/WidgetInteractionComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -60,8 +61,11 @@ AVRPlayer::AVRPlayer()
 	rightLog->SetWorldSize(20);
 	rightLog->SetTextRenderColor(FColor::Yellow);
 
-	lineFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Line Effect"));
-	lineFX->SetupAttachment(rightMotion);
+	widgetPointerRight = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Right Widget Pointer"));
+	widgetPointerRight->SetupAttachment(rightMotion);
+
+	//lineFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Line Effect"));
+	//lineFX->SetupAttachment(rightMotion);
 
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = false;
@@ -104,6 +108,8 @@ void AVRPlayer::BeginPlay()
 	{
 		rightAnim->bMirrored = false;
 	}
+
+	//GetController<APlayerController>()->SetShowMouseCursor(true);
 }
 
 void AVRPlayer::Tick(float DeltaTime)
