@@ -30,8 +30,8 @@ void UMoveComponent::BeginPlay()
 	player = GetOwner<AVRPlayer>();
 
 	// 텔레포트 타겟 지점에 표시할 링 이펙트를 생성 후 비활성화한다.
-	ringInstance = GetWorld()->SpawnActor<ATeleportRingActor>(ringActor, player->GetActorLocation(), player->GetActorRotation());
-	ringInstance->ringFX->SetVisibility(false);
+	//ringInstance = GetWorld()->SpawnActor<ATeleportRingActor>(ringActor, player->GetActorLocation(), player->GetActorRotation());
+	//ringInstance->ringFX->SetVisibility(false);
 
 	// 물리 비교용 공 액터 생성하기
 	/*FActorSpawnParameters params;
@@ -192,10 +192,10 @@ void UMoveComponent::DrawBezierLine(UMotionControllerComponent* rightMotionComp)
 			//DrawDebugLine(GetWorld(), throwPoints[i], throwPoints[i + 1], FColor::Black, false, 0, 0, 1);
 
 			// NiagaraSystem을 이용해서 그리기
-			UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
+			/*UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(player->lineFX, FName("PointArray"), throwPoints);
 
 			ringInstance->ringFX->SetVisibility(true);
-			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
+			ringInstance->SetActorLocation(throwPoints[throwPoints.Num() - 1]);*/
 		}
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("Points Array whole count: %d"), points.Num() - 1);
@@ -228,7 +228,7 @@ void UMoveComponent::TeleportToTarget()
 		FTimerHandle teleportTimer;
 		GetWorld()->GetTimerManager().SetTimer(teleportTimer, FTimerDelegate::CreateLambda([&]() {
 			player->SetActorLocation(throwPoints[throwPoints.Num() - 1]);
-			ringInstance->ringFX->SetVisibility(false);
+			//ringInstance->ringFX->SetVisibility(false);
 			}), fadeTime, false);
 
 	}
