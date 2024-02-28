@@ -139,6 +139,9 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Triggered, this, &AVRPlayer::Rotate);
 		//enhancedInputComponent->BindAction(vrInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::Rotate);
 
+		enhancedInputComponent->BindAction(vrInputs[2], ETriggerEvent::Started, this, &AVRPlayer::ClickLeftMouseButtonPress);
+		enhancedInputComponent->BindAction(vrInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ClickLeftMouseButtonRelease);
+
 		// 오른손 입력 값
 		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Triggered, this, &AVRPlayer::RightHandTriggerValue);
 		enhancedInputComponent->BindAction(animInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::RightHandTriggerValue);
@@ -247,3 +250,16 @@ void AVRPlayer::LeftThumbUpTouchValue(const FInputActionValue& val)
 
 }
 
+void AVRPlayer::ClickLeftMouseButtonPress()
+{
+	// 키보드 버튼을 누른 효과를 줄 때
+	//widgetPointerRight->PressKey();
+
+	// 마우스 버튼을 누른 효과를 줄 때
+	widgetPointerRight->PressPointerKey(EKeys::LeftMouseButton);
+}
+
+void AVRPlayer::ClickLeftMouseButtonRelease()
+{
+	widgetPointerRight->ReleasePointerKey(EKeys::LeftMouseButton);
+}

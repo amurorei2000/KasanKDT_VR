@@ -97,4 +97,7 @@ private:
 	void LeftIndexTouchValue(const FInputActionValue& val);
 	void LeftIndexTriggerValue(const FInputActionValue& val);
 	void LeftThumbUpTouchValue(const FInputActionValue& val);
+
+	void ClickLeftMouseButtonPress();
+	void ClickLeftMouseButtonRelease();
 };
