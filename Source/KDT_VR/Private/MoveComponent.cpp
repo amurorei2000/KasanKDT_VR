@@ -107,7 +107,17 @@ void UMoveComponent::DrawTrajectory(FVector startLoc, FVector dir, float throwPo
 	{
 		// p = p0 + vt - 0.5 * g * m * m * t * t
 		float t = interval * i;
-		float mass = ballInstance->sphereComp->GetMass();
+		float mass;
+
+		if (ballInstance != nullptr)
+		{
+			mass = ballInstance->sphereComp->GetMass();
+		}
+		else
+		{
+			mass = 1.0f;
+		}
+
 		float gravity = 0.5f * GetWorld()->GetDefaultGravityZ() * mass * mass * t * t;
 		FVector curLocation = startLoc + dir * throwPower * t + FVector(0, 0, gravity);
 
