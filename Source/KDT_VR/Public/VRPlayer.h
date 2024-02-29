@@ -30,6 +30,9 @@ public:
 	class UStaticMeshComponent* headMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
+	class UStaticMeshComponent* gazePointer;
+
+	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UMotionControllerComponent* leftMotion;
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
@@ -59,7 +62,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "MySettings|Components")
 	class UGrabComponent* grabComp;
+	
+	UPROPERTY(EditAnywhere, Category = "MySettings|Components")
+	class UGazeComponent* gazeComp;
 
+	// 사용자 인풋
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	class UInputMappingContext* vrMapping;
 

@@ -15,6 +15,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "HandAnimInstance.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "GazeComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -26,6 +27,13 @@ AVRPlayer::AVRPlayer()
 
 	headMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeadMesh"));
 	headMesh->SetupAttachment(cameraComp);
+
+	gazePointer = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gaze Pointer Mesh"));
+	gazePointer->SetupAttachment(cameraComp);
+	gazePointer->SetWorldScale3D(FVector(0.3f));
+	gazePointer->SetWorldLocation(FVector(300, 0, 0));
+	gazePointer->SetWorldRotation(FRotator(0, -90, -90));
+	gazePointer->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	leftMotion = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Motion Controller"));
 	leftMotion->SetupAttachment(RootComponent);
@@ -74,7 +82,7 @@ AVRPlayer::AVRPlayer()
 	// Ä¿½ºÅÒ ¾×ÅÍ ÄÄÆ÷³ÍÆ®
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
 	grabComp = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
-
+	gazeComp = CreateDefaultSubobject<UGazeComponent>(TEXT("GazeComponent"));
 }
 
 void AVRPlayer::BeginPlay()
