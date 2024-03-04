@@ -16,6 +16,7 @@
 #include "HandAnimInstance.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "GazeComponent.h"
+#include "ClimbComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -83,6 +84,7 @@ AVRPlayer::AVRPlayer()
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
 	grabComp = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
 	gazeComp = CreateDefaultSubobject<UGazeComponent>(TEXT("GazeComponent"));
+	climbComp = CreateDefaultSubobject<UClimbComponent>(TEXT("ClimbComponent"));
 }
 
 void AVRPlayer::BeginPlay()
@@ -166,13 +168,10 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 #pragma endregion
 
-		if (moveComp != nullptr)
-		{
-			moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
-		}
-
+		// 액터 컴포넌트에 입력 정보를 넘겨주기
+		moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		grabComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
-
+		climbComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 	}
 }
 
