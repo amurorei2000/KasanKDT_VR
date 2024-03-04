@@ -123,7 +123,12 @@ void AVRPlayer::BeginPlay()
 
 	//GetController<APlayerController>()->SetShowMouseCursor(true);
 
-	
+	/*GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+
+	FTimerHandle testHandler;
+	GetWorldTimerManager().SetTimer(testHandler, FTimerDelegate::CreateLambda([&]() {
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		}), 2.0f, false);*/
 }
 
 void AVRPlayer::Tick(float DeltaTime)
@@ -132,6 +137,9 @@ void AVRPlayer::Tick(float DeltaTime)
 
 	//GetCharacterMovement()->GravityScale = 0;
 	//AddActorWorldOffset(FVector::UpVector);
+
+	//FString currentMode = UEnum::GetValueAsString(GetCharacterMovement()->MovementMode);
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *currentMode);
 }
 
 void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
