@@ -53,8 +53,6 @@ void UClimbComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// 핸드 버튼을 둘 다 놓았다면...
 	if(!bGrabbed_left && !bGrabbed_right) 
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Not Grabbed both!!"));
-
 		// 플레이어의 movementMode를 낙하 상태로 전환하고, 중력 배율도 1로 변경한다.
 		player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		player->SetCharGravityScale(1);

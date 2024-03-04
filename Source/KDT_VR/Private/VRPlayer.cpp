@@ -17,6 +17,7 @@
 #include "Components/WidgetInteractionComponent.h"
 #include "GazeComponent.h"
 #include "ClimbComponent.h"
+#include "CarControlComponent.h"
 
 
 AVRPlayer::AVRPlayer()
@@ -85,6 +86,7 @@ AVRPlayer::AVRPlayer()
 	grabComp = CreateDefaultSubobject<UGrabComponent>(TEXT("GrabComponent"));
 	gazeComp = CreateDefaultSubobject<UGazeComponent>(TEXT("GazeComponent"));
 	climbComp = CreateDefaultSubobject<UClimbComponent>(TEXT("ClimbComponent"));
+	carControlComp = CreateDefaultSubobject<UCarControlComponent>(TEXT("CarControlComponent"));
 }
 
 void AVRPlayer::BeginPlay()
@@ -178,6 +180,7 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		grabComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		climbComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
+		carControlComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 	}
 }
 

@@ -70,6 +70,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings|Components")
 	class UClimbComponent* climbComp;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings|Components")
+	class UCarControlComponent* carControlComp;
+
 	// 사용자 인풋
 	UPROPERTY(EditAnywhere, Category = "MySettings|Inputs")
 	class UInputMappingContext* vrMapping;
