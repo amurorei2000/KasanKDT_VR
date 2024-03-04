@@ -120,12 +120,16 @@ void AVRPlayer::BeginPlay()
 	}
 
 	//GetController<APlayerController>()->SetShowMouseCursor(true);
+
+	
 }
 
 void AVRPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//GetCharacterMovement()->GravityScale = 0;
+	//AddActorWorldOffset(FVector::UpVector);
 }
 
 void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -168,12 +172,15 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 #pragma endregion
 
+		enhancedInputComponent->BindAction(vrInputs[4], ETriggerEvent::Completed, this, &AVRPlayer::LeftYPress);
+		
 		// 액터 컴포넌트에 입력 정보를 넘겨주기
 		moveComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		grabComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 		climbComp->SetupPlayerInputComponent(enhancedInputComponent, vrInputs);
 	}
 }
+
 
 void AVRPlayer::RightTriggerTouch(const FInputActionValue& val)
 {
@@ -255,6 +262,12 @@ void AVRPlayer::LeftIndexTriggerValue(const FInputActionValue& val)
 void AVRPlayer::LeftThumbUpTouchValue(const FInputActionValue& val)
 {
 
+}
+
+// 헤드셋 방향 재정렬 함수
+void AVRPlayer::LeftYPress(const FInputActionValue& val)
+{
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AVRPlayer::ClickLeftMouseButtonPress()

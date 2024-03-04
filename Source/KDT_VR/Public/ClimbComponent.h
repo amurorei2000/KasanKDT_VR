@@ -25,7 +25,13 @@ public:
 	
 private:
 	class AVRPlayer* player;
+	FVector prevHandLoc_left;
+	FVector prevHandLoc_right;
+	bool bGrabbed_left = false;
+	bool bGrabbed_right = false;
+	class UMotionControllerComponent* lastHand;
 
 	void HandleGrabLeft(const FInputActionValue& value);
 	void HandleGrabRight(const FInputActionValue& value);
+	bool CheckGrab(class UMotionControllerComponent* motionController);
 };

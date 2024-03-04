@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "VRPlayer.generated.h"
 
 UCLASS()
@@ -93,6 +94,9 @@ public:
 	float currentLeftIndexTrigger = 0;
 	float leftThumbUpTouch = 0;
 
+	FORCEINLINE void SetCharGravityScale(float scaleValue) { GetCharacterMovement()->GravityScale = scaleValue; };
+
+
 private:
 	void RightTriggerTouch(const FInputActionValue& val);
 	void RightTriggerPress(const FInputActionValue& val);
@@ -107,7 +111,10 @@ private:
 	void LeftIndexTouchValue(const FInputActionValue& val);
 	void LeftIndexTriggerValue(const FInputActionValue& val);
 	void LeftThumbUpTouchValue(const FInputActionValue& val);
+	void LeftYPress(const FInputActionValue& val);
 
 	void ClickLeftMouseButtonPress();
 	void ClickLeftMouseButtonRelease();
+
+
 };
